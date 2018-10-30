@@ -44,6 +44,6 @@ cvx_begin sdp
 %          
 %         Lm(2,3) == 0
         
-        x(1:3) == leader_pose;
+        x(1:3) == leader_pose
 cvx_end
 x
