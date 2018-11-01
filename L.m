@@ -2,6 +2,7 @@ function L = L(x)
 
 % Assumes single integrator model so that we have 3 states for a single
 % agent in the X vector and z is same and constant for all the quadrotors
+% Assuming 2 quadrotors and 1 ground robot
 
 theta_1 = 60*pi/180;
 theta_2 = 90*pi/180;
