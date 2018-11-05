@@ -32,7 +32,7 @@ B = eye(3*(n+l)*(N-1));
 x_init = [leader_pose' 0.0 0 1 0.0 0 1]';
 
 
-%%
+%% Solving Convex Optimization Problem with Dynamic Constraints using 'cvx'
 
 cvx_begin sdp
     %variable x(9)
@@ -66,6 +66,9 @@ cvx_begin sdp
         X(1:9) == x_init
         %r(1,2,X(end-8:end)) <= 0.5;
 cvx_end
+
+%% Solving Non-Convex Optimization Problem with Dynamic Constraints using 'fmincon'
+
 
 %% Plotting Stuff
 close all
