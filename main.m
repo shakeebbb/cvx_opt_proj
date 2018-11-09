@@ -8,11 +8,16 @@ close all
 %% 
 % Assuming single integrator model with 3 states
 
-Ts = 0.5; % Sampling Time
+Ts = 0.1; % Sampling Time
 Th = 10; % Time horizon
 N = Th/Ts + 1; % Number of the waypoints
 n = 2; % Number of quadrotors
 l = 1; % Number of ground robots
+obs_loc = [0;2;0]; % Static obstacle location
+obs_width = 0.25; % Obstacle Width / 2
+obs_len = 0.25; % Obstacle Length / 2
+M = 500; % Big M
+
 
 % x = [0 0 0 0.0 0 1 0. 0 1]';
 % L = L(x)
@@ -39,17 +44,18 @@ cvx_begin sdp
     variable lambda
     variable X(9*(N))
     variable U(9*(N-1))
+    variable wm(4) binary
     %variable Lm(3,3) symmetric
     maximize( lambda )
     subject to
         %norm(chol(L(x))*P) >= lambda * eye(2)
         %P' * Lm * P >= lambda * eye(3)
         
-        P' * L(X(end-8:end)) * P >= lambda * eye(3)
+        P' * L(X(end-8:end)) * P >= lambda * eye(3) % Network Strenght Constraints
         %Y = circshift(X,9);
         %Y(1:9) = x_init;
         
-        X(10:end) == sys_d.A*X(1:end-9) + sys_d.B*U
+        X(10:end) == sys_d.A*X(1:end-9) + sys_d.B*U % Dynamic Constraints
         
 %         Lm(1,2) == -min(1,pow_p(e, R - r(1,2,x)));
 %         Lm(1,3) == -min(1,pow_p(e, R - r(1,3,x)));
@@ -62,9 +68,17 @@ cvx_begin sdp
 %         Lm(2,3) == 0
         %eye(9*(N-1))*U <= 5*ones(9*(N-1),1)
         %U(9) >= -5
-        X(end-8:end-6) == leader_pose
-        X(1:9) == x_init
-        %r(1,2,X(end-8:end)) <= 0.5;
+        X(end-8:end-6) == leader_pose % Leader Final Conditions
+        X(1:9) == x_init % Initial Conditions
+        
+        Am = [1  0 -1 0
+              0 -1  0 1
+              0  0  0 0]'; % For each state TODO : Extend to X vector 
+        bm = [obs_loc(1)+obs_len obs_loc(2)-obs_len obs_loc(1)-obs_len obs_loc(2)+obs_len]';
+        ones(4,1)' * wm <= 4-1;
+        
+        Am*X(end-5:end-3) + M*wm >= bm;
+        %r(1,2,X(end-8:end)) >= 0.5;
 cvx_end
 
 %% Solving Non-Convex Optimization Problem with Dynamic Constraints using 'fmincon'
