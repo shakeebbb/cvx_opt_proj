@@ -79,9 +79,9 @@ P = [-1    -1    0;
 % 
 % [sys_d] = c2d(ss(A,B,[],[]), Ts);
 
-leader_pose = [1 7 0 0 0 0]';  % Leader's State
+leader_pose = [2 2 0 0 0 0]';  % Leader's State
 x_init = [leader_pose' 0.0 0 2 0 0 0 0.0 0 2 0 0 0]';
-
+x_init(7:12) =  [0.6438 1.1557 0 0 0 0]';
 %% Solving Convex Optimization Problem with Dynamic Constraints using 'cvx'
 
 cvx_begin sdp
@@ -173,6 +173,7 @@ ylabel('Position (m)');
 legend('x','y','z');
 grid on
 
+title('Leaders Position = [1,2,0]')
 %Trajectories plot on Euclidean Coordinates
 figure
 
@@ -209,3 +210,4 @@ Yb = obs_len*2*(Yb-0.5) + obs_loc(2);
 Zb = obs_len*2*(Zb-0.5) + obs_loc(3); 
 
 fill3(Xb,Yb,Zb,Cb,'FaceAlpha',alpha);    % draw cube
+title('Leaders Position = [1,2,0]')
